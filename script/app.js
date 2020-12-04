@@ -9,17 +9,11 @@ document.addEventListener('DOMContentLoaded', () =>
         todoRemove = document.querySelector('.todo-remove'),
         todoCompleted = document.querySelector('.todo-completed');
 
-    const todoData = [
-        {
-            value :'Сварить кофе',
-            completed : false
-        },
-        {
-            value : 'Помыть посуду',
-            completed : true
-        }
-    ];
-    
+    let todoData = [];
+    if(localStorage.getItem('db') !== null) {
+        todoData = JSON.parse(localStorage.getItem('db'));
+    }
+
     const render = () => {
         todoList.textContent = '';
         todoCompleted.textContent = '';
@@ -54,7 +48,9 @@ document.addEventListener('DOMContentLoaded', () =>
 
         
 
-        //console.log(todoData);
+        let json = JSON.stringify(todoData);
+        localStorage.setItem('db', json);
+        //console.log(json);
         headerInput.value = '';
     };
 
