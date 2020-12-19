@@ -8,6 +8,7 @@ class ToDo {
         this.doneList = document.querySelector(doneList);
         this.taskArea = document.querySelector('.todo-container');
         this.taskDbKey = 'taskDb';
+        this.isEditKey = '';
         this.taskList = new Map(JSON.parse(localStorage.getItem(this.taskDbKey)));
     }
 
@@ -86,11 +87,41 @@ class ToDo {
         this.render();
     }
 
+    editTask(target) {
+        console.log(target.closest('.todo-item').firstChild.nextSibling);
+        const taskItem = target.closest('.todo-item'),
+            taskItemSpan = taskItem.firstChild.nextSibling,
+            isEdit = taskItemSpan.getAttribute('contenteditable');
+        console.log(isEdit);
+        if (!isEdit) {            
+            this.taskList.forEach(task => {
+                if (task.value === taskItemSpan.textContent.trim()) {
+                    this.isEditKey = task.key;
+                    console.log(this.isEditKey);
+                }
+                taskItemSpan.setAttribute('contenteditable', true);
+            });
+        } else {
+            const edit = this.isEditKey;
+            taskItemSpan.removeAttribute('contenteditable');
+            console.log(this.isEditKey);
+            console.log(this.taskList.get(this.isEditKey).value);
+            this.taskList.get(this.isEditKey).value = taskItemSpan.textContent;
+            this.render();
+        }
+
+        console.log(taskItemSpan.getAttribute('contenteditable'));
+    }
+
     handler(e) {
         const target = e.target;
         if (target.matches('.todo-complete')) {
             this.completeTask(target);
-        } else if (target.matches('.todo-remove')) { this.rmTask(target); }
+        } else if (target.matches('.todo-remove')) {
+            this.rmTask(target);
+        } else if (target.matches('.todo-edit')) {
+            this.editTask(target);
+        }
     }
 
     init() {

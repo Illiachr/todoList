@@ -143,6 +143,10 @@ body {
     margin: 0;
 }
 
+.text-todo {
+    outline: none;
+}
+
 .todo-buttons {
     display: flex;
     justify-content: flex-end;
@@ -179,8 +183,8 @@ body {
 }
 
 .todo-remove {
-     background-image: url("../img/trash.png");
- }
+    background-image: url("../img/trash.png");
+}
 
 .todo-complete {
     background-image: url("../img/uncheck.png");
