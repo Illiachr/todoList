@@ -67,51 +67,91 @@ class ToDo {
         } // end if
     } // end addTask
 
+    moveItem(elem, drawFn, distance) {
+        elem.style.zIndex = 99;
+        let start = null,
+            currentPos = 0,
+            id;
+
+        const step = timestamp => {
+            if (!start) { start = timestamp; }
+            const progress = timestamp - start;
+            currentPos = drawFn(elem, currentPos, progress);
+
+            if (Math.abs(currentPos) <= Math.abs(distance)) {
+                id = requestAnimationFrame(step);
+            } else {
+                cancelAnimationFrame(id);
+                this.render();
+            }
+        };
+        id = requestAnimationFrame(step);
+    }
+
+    drawUp(elem, currentTop, progress) {
+        elem.style.top = `${currentTop}px`;
+        return currentTop -= Math.floor((progress / 100) / 2);
+    }
+
+    drawDown(elem, currentTop, progress) {
+        elem.style.top = `${currentTop}px`;
+        return currentTop += Math.floor((progress / 100) / 2);
+    }
+
+    drawRight(elem, currentPos, progress) {
+        elem.style.transform = `translateX(${currentPos}%)`;
+        return currentPos += Math.floor((progress / 100) / 10);
+    }
+
     rmTask(target) {
+        const taskItem = target.closest('.todo-item');
         this.taskList.forEach(task => {
-            if (task.value === target.closest('.todo-item').textContent.trim()) {
+            if (task.value === taskItem.textContent.trim()) {
                 this.taskList.delete(task.key);
+                this.moveItem(taskItem, this.drawRight, 110);
             }
         });
-        this.render();
     }
 
     completeTask(target) {
+        const taskItem = target.closest('.todo-item');
+
         this.taskList.forEach(task => {
-            if (task.value === target.closest('.todo-item').textContent.trim()) {
+            if (task.value === taskItem.textContent.trim()) {
                 if (!task.done) {
                     task.done = true;
-                } else { task.done = false; }
+                    const destDn = this.doneList.getBoundingClientRect().bottom + 12,
+                        distDn = destDn - taskItem.getBoundingClientRect().top;
+                    this.moveItem(taskItem, this.drawDown, distDn);
+                } else {
+                    task.done = false;
+                    const destUp = this.todoList.getBoundingClientRect().bottom + 12,
+                        distUp = destUp - taskItem.getBoundingClientRect().top;
+                    this.moveItem(taskItem, this.drawUp, distUp);
+                }
             }
-        });
-        this.render();
+        }); // end forEach
     }
 
     editTask(target) {
-        console.log(target.closest('.todo-item').firstChild.nextSibling);
         const taskItem = target.closest('.todo-item'),
-            taskItemSpan = taskItem.firstChild.nextSibling,
-            isEdit = taskItemSpan.getAttribute('contenteditable');
-        console.log(isEdit);
-        if (!isEdit) {            
+            taskText = taskItem.firstChild.nextSibling,
+            isEdit = taskText.getAttribute('contenteditable');
+        if (!isEdit) {
             this.taskList.forEach(task => {
-                if (task.value === taskItemSpan.textContent.trim()) {
+                if (task.value === taskText.textContent.trim()) {
                     this.isEditKey = task.key;
-                    console.log(this.isEditKey);
                 }
-                taskItemSpan.setAttribute('contenteditable', true);
+                taskText.setAttribute('contenteditable', true);
+                target.classList.add('todo-refresh');
             });
         } else {
-            const edit = this.isEditKey;
-            taskItemSpan.removeAttribute('contenteditable');
-            console.log(this.isEditKey);
-            console.log(this.taskList.get(this.isEditKey).value);
-            this.taskList.get(this.isEditKey).value = taskItemSpan.textContent;
+            taskText.removeAttribute('contenteditable');
+            target.classList.remove('todo-refresh');
+            this.taskList.get(this.isEditKey).value = taskText.textContent;
             this.render();
-        }
-
-        console.log(taskItemSpan.getAttribute('contenteditable'));
-    }
+        } // end if
+    } // end editTask
 
     handler(e) {
         const target = e.target;

@@ -194,6 +194,10 @@ body {
     background-image: url("../img/pencil.png");
 }
 
+.todo-refresh {
+    background-image: url("../img/refresh.png");
+}
+
 .todo-completed .todo-complete {
     background-image: url("../img/check.png");
 }
